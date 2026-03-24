@@ -5,8 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import os
 
-# Set page config
-st.set_page_config(page_title="Heart Disease Classifier", page_icon="❤️", layout="wide")
+st.set_page_config(page_title="Heart Disease Clinical Assessment", layout="wide")
 
 @st.cache_data
 def load_and_preprocess_data():
@@ -14,13 +13,12 @@ def load_and_preprocess_data():
     csv_path = os.path.join(current_dir, 'heart_disease_uci.csv')
     df = pd.read_csv(csv_path)
     df.drop(columns=['id', 'dataset'], inplace=True)
-    # Fill NAs
+    
     for col in df.select_dtypes(include=['float64', 'int64']).columns:
         df[col] = df[col].fillna(df[col].median())
     for col in df.select_dtypes(include=['object', 'bool']).columns:
         df[col] = df[col].fillna(df[col].mode()[0])
         
-    # Keep encoders to transform user string input back to integers
     encoders = {}
     categorical_columns = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'thal']
     for col in categorical_columns:
@@ -39,42 +37,48 @@ def load_and_preprocess_data():
 
 @st.cache_resource
 def train_model(X_scaled, y):
-    # Use best known parameters
     model = RandomForestClassifier(random_state=42, n_estimators=200, max_depth=5, n_jobs=-1)
     model.fit(X_scaled, y)
     return model
 
-# 1. Load Data
 X, y, X_scaled, encoders, scaler = load_and_preprocess_data()
-# 2. Load Model
 rf_model = train_model(X_scaled, y)
 
-# ================= APP UI =================
-st.title("Heart Disease Severity Predictor ❤️🩺")
+st.title("Clinical Heart Disease Assessment Tool")
 st.markdown("""
-This web application uses a **Random Forest Classifier** trained on the UCI Heart Disease Dataset. 
-Use the **sidebar** on the left to input patient details and receive an immediate severity classification (0-4).
+This diagnostic tool evaluates patient clinical records using a Random Forest algorithm trained on the UCI Heart Disease Dataset.
+Please input the patient's physiological markers below to generate an automated severity classification.
 """)
+st.divider()
 
-# ================= SIDEBAR =================
-st.sidebar.header("Patient Vitals Input")
+st.subheader("Patient Vitals & Clinical Metrics")
 
-age = st.sidebar.slider("Age", int(X['age'].min()), int(X['age'].max()), 50)
-sex = st.sidebar.selectbox("Sex", encoders['sex'].classes_)
-cp = st.sidebar.selectbox("Chest Pain Type (cp)", encoders['cp'].classes_)
-trestbps = st.sidebar.slider("Resting Blood Pressure (trestbps)", float(X['trestbps'].min()), float(X['trestbps'].max()), 120.0)
-chol = st.sidebar.slider("Cholesterol (chol)", float(X['chol'].min()), float(X['chol'].max()), 200.0)
-fbs = st.sidebar.selectbox("Fasting Blood Sugar > 120 mg/dl (fbs)", encoders['fbs'].classes_)
-restecg = st.sidebar.selectbox("Resting ECG (restecg)", encoders['restecg'].classes_)
-thalch = st.sidebar.slider("Max Heart Rate Achieved (thalch)", float(X['thalch'].min()), float(X['thalch'].max()), 150.0)
-exang = st.sidebar.selectbox("Exercise Induced Angina (exang)", encoders['exang'].classes_)
-oldpeak = st.sidebar.slider("ST depression induced by exercise (oldpeak)", float(X['oldpeak'].min()), float(X['oldpeak'].max()), 1.0)
-slope = st.sidebar.selectbox("Peak exercise ST segment slope (slope)", encoders['slope'].classes_)
-ca = st.sidebar.slider("Number of major vessels (0-3) flourosopy (ca)", float(X['ca'].min()), float(X['ca'].max()), 0.0)
-thal = st.sidebar.selectbox("Thalassemia (thal)", encoders['thal'].classes_)
+col1, col2, col3 = st.columns(3)
 
-# ================= PREDICTION =================
-# Map string inputs back to Encoded values
+with col1:
+    st.markdown("**Demographics & Symptoms**")
+    age = st.number_input("Age (Years)", int(X['age'].min()), int(X['age'].max()), 50)
+    sex = st.selectbox("Biological Sex", encoders['sex'].classes_)
+    cp = st.selectbox("Chest Pain Classification", encoders['cp'].classes_)
+    ca = st.number_input("Number of Major Vessels (0-3)", float(X['ca'].min()), float(X['ca'].max()), 0.0)
+
+with col2:
+    st.markdown("**Core Clinical Results**")
+    trestbps = st.number_input("Resting Blood Pressure (mm Hg)", float(X['trestbps'].min()), float(X['trestbps'].max()), 120.0)
+    chol = st.number_input("Serum Cholesterol (mg/dl)", float(X['chol'].min()), float(X['chol'].max()), 200.0)
+    fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", encoders['fbs'].classes_)
+    thalch = st.number_input("Maximum Heart Rate Achieved", float(X['thalch'].min()), float(X['thalch'].max()), 150.0)
+
+with col3:
+    st.markdown("**ECG & Stress Test Data**")
+    restecg = st.selectbox("Resting Electrocardiographic Results", encoders['restecg'].classes_)
+    exang = st.selectbox("Exercise Induced Angina", encoders['exang'].classes_)
+    oldpeak = st.number_input("ST Depression (Exercise vs Rest)", float(X['oldpeak'].min()), float(X['oldpeak'].max()), 1.0)
+    slope = st.selectbox("Slope of Peak Exercise ST Segment", encoders['slope'].classes_)
+    thal = st.selectbox("Thalassemia Assessment", encoders['thal'].classes_)
+
+st.divider()
+
 user_data = {
     'age': age,
     'sex': encoders['sex'].transform([sex])[0],
@@ -91,24 +95,21 @@ user_data = {
     'thal': encoders['thal'].transform([thal])[0]
 }
 
-# Order perfectly matches what model trained on
 user_df = pd.DataFrame([user_data], columns=X.columns)
 user_scaled = scaler.transform(user_df)
 
-if st.sidebar.button("Run Diagnostics 🔍"):
+if st.button("Run Diagnostic Analysis", type="primary"):
     prediction = rf_model.predict(user_scaled)[0]
     
-    st.markdown("### Diagnostic Results")
+    st.subheader("Diagnostic Report")
+    
     if prediction == 0:
-        st.success("🎉 **No Heart Disease Detected (Level 0)**")
-        st.balloons()
+        st.success("Result: The model indicates no presence of heart disease (Level 0).")
     else:
-        st.error(f"⚠️ **Heart Disease Detected - Severity Level {prediction} (out of 4)**")
+        st.warning(f"Result: The model indicates a potential presence of heart disease (Severity Level {prediction} out of 4). Clinical follow-up is recommended.")
         
     st.markdown("---")
-    st.markdown("### Key Feature Importance driving this model")
+    st.markdown("**Feature Importance Matrix (Technical Reference)**")
     importance = pd.DataFrame({'Feature': X.columns, 'Importance': rf_model.feature_importances_})
     importance = importance.sort_values(by='Importance', ascending=False)
     st.bar_chart(data=importance, x='Feature', y='Importance')
-    
-    st.markdown("*Note: 'cp' (Chest Pain type), 'thalch' (Max heart rate) and 'exang' (Exercise induced angina) heavily dictate the model's accuracy on the UCI dataset.*")
