@@ -9,9 +9,10 @@ st.set_page_config(page_title="Heart Disease Classifier", page_icon="❤️", la
 
 @st.cache_data
 def load_and_preprocess_data():
-    df = pd.read_csv('C:/Users/medoc/OneDrive/Desktop/work/Machine/data/heart_disease_uci.csv')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(current_dir, 'heart_disease_uci.csv')
+    df = pd.read_csv(csv_path)
     df.drop(columns=['id', 'dataset'], inplace=True)
-    
     # Fill NAs
     for col in df.select_dtypes(include=['float64', 'int64']).columns:
         df[col] = df[col].fillna(df[col].median())
