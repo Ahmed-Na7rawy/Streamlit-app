@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+import os
 
 # Set page config
 st.set_page_config(page_title="Heart Disease Classifier", page_icon="❤️", layout="wide")
