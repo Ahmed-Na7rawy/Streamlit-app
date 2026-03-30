@@ -38,11 +38,11 @@ ENCODE = {
 RISK_COLORS = {"Healthy": "#2ecc71", "Mild": "#f1c40f", "Moderate": "#e67e22", "Severe": "#e74c3c"}
 RISK_ORDER = ["Healthy", "Mild", "Moderate", "Severe"]
 
-st.sidebar.title("🌙 Sleep Health")
-page = st.sidebar.radio("Navigate", ["📊 Overview", "🔍 Data Explorer", "🤖 Risk Predictor"])
+st.sidebar.title("Sleep Health")
+page = st.sidebar.radio("Navigate", ["Overview", "Data Explorer", "Risk Predictor"])
 
-if page == "📊 Overview":
-    st.title("🌙 Sleep Health & Lifestyle Dashboard")
+if page == "Overview":
+    st.title(" Sleep Health & Lifestyle Dashboard")
     st.markdown("Analyzing **100,000** individuals across sleep quality, stress, and health metrics.")
 
     c1, c2, c3, c4 = st.columns(4)
@@ -103,8 +103,8 @@ if page == "📊 Overview":
         fig.update_layout(xaxis_tickangle=-45, legend_title="Risk", margin=dict(t=20, b=20))
         st.plotly_chart(fig, use_container_width=True)
 
-elif page == "🔍 Data Explorer":
-    st.title("🔍 Data Explorer")
+elif page == "Data Explorer":
+    st.title(" Data Explorer")
 
     with st.expander("Filters", expanded=True):
         col1, col2, col3 = st.columns(3)
@@ -132,8 +132,8 @@ elif page == "🔍 Data Explorer":
     fig.update_layout(legend_title="Risk Level", margin=dict(t=20))
     st.plotly_chart(fig, use_container_width=True)
 
-elif page == "🤖 Risk Predictor":
-    st.title("🤖 Sleep Disorder Risk Predictor")
+elif page == "Risk Predictor":
+    st.title("Sleep Disorder Risk Predictor")
     st.markdown("Fill in your details and the Random Forest model will estimate your sleep disorder risk.")
 
     with st.form("predict_form"):
