@@ -4,4 +4,4 @@ pandas
 matplotlib
 plotly
 seaborn
-scikitlearn
+scikit-learn
