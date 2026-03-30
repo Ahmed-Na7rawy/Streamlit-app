@@ -190,7 +190,7 @@ elif page == "Risk Predictor":
         room_temp  = c29.number_input("Room Temperature (°C)", 15.0, 35.0, 20.0, 0.5)
 
         felt_rested = st.selectbox("Felt rested this morning?", [0, 1], format_func=lambda x: "Yes" if x else "No")
-        submitted = st.form_submit_button("🔮 Predict My Risk", use_container_width=True)
+        submitted = st.form_submit_button("Predict My Risk", use_container_width=True)
 
     if submitted:
         input_data = pd.DataFrame([{
