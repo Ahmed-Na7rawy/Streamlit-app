@@ -1,7 +1,7 @@
 import urllib.request
 import os
 
-MODEL_URL = "https://raw.githubusercontent.com/Ahmed-Na7rawy/sleep-health-classifier/master/random_forest_model.pkl"
+MODEL_URL = "https://raw.githubusercontent.com/Ahmed-Na7rawy/sleep-health-classifier/main/random_forest_model.pkl"
 MODEL_PATH = "random_forest_model.pkl"
 
 def download_model():
@@ -11,6 +11,7 @@ def download_model():
         print("Model downloaded successfully!")
     except Exception as e:
         print(f"Failed to download model: {e}")
+        raise e
 
 if __name__ == "__main__":
     if not os.path.exists(MODEL_PATH):
