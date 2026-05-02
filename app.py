@@ -7,6 +7,8 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import joblib
+import os
+from download_model import download_model
 
 st.set_page_config(page_title="Sleep Health & Lifestyle", page_icon="🌙", layout="wide")
 
@@ -16,6 +18,9 @@ def load_data():
 
 @st.cache_resource
 def load_model():
+    if not os.path.exists("random_forest_model.pkl"):
+        with st.spinner("Downloading model... This may take a moment."):
+            download_model()
     return joblib.load("random_forest_model.pkl")
 
 df = load_data()
